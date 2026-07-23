@@ -109,6 +109,8 @@ section.on{display:block}
 .excluded{background:rgba(224,30,55,.12);border:1px solid var(--red-d);border-radius:12px;
   padding:11px 14px;font-size:13px;margin:4px 0 12px;color:#ffd0d6;line-height:1.45}
 .excluded b{color:#fff}
+.vcount{display:inline-block;background:var(--red);color:#fff;font-size:12px;font-weight:800;
+  border-radius:999px;padding:2px 10px;margin-left:6px;vertical-align:middle}
 
 .plaque{background:linear-gradient(135deg,#2a2f3a,#20242e);border:2px dashed var(--gold);
   color:var(--gold);border-radius:16px;padding:18px 16px;text-align:center;font-weight:800;
@@ -228,7 +230,7 @@ section.on{display:block}
       <ul class="best" id="bestList"></ul>
     </div>
     <div class="card">
-      <h3 style="font-size:15px;color:var(--muted)">📊 Uczestnicy, którzy już zagłosowali</h3>
+      <h3 style="font-size:15px;color:var(--muted)">📊 Uczestnicy, którzy już zagłosowali <span id="voterCount" class="vcount">0</span></h3>
       <div id="voters" class="muted" style="font-size:14px;margin-top:8px">—</div>
     </div>
   </section>
@@ -439,6 +441,7 @@ function renderRes(){
       </li>`).join("");
   }
   const voters=[...new Set(AV.map(x=>x.person))];
+  $("#voterCount").textContent = voters.length;
   $("#voters").textContent = voters.length ? voters.join(" · ") : "Jeszcze nikt.";
 }
 
