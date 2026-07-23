@@ -85,11 +85,12 @@ section.on{display:block}
 
 /* ---------- AVAILABILITY GRID ---------- */
 .gridwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.avgrid{border-collapse:separate;border-spacing:5px;margin:0 auto}
+.avgrid{border-collapse:separate;border-spacing:5px;margin:0 auto;width:100%;max-width:360px;table-layout:fixed}
+.avgrid th:first-child{width:44px}
 .avgrid th{font-size:12px;color:var(--muted);font-weight:700;padding:2px}
 .avgrid td.day{font-size:13px;font-weight:700;color:var(--txt);text-align:right;
   padding-right:6px;white-space:nowrap}
-.cell{width:46px;height:40px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);
+.cell{width:100%;height:40px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);
   cursor:pointer;position:relative;transition:.1s;user-select:none}
 .cell:active{transform:scale(.92)}
 .cell.yes{background:var(--green);border-color:var(--green-d)}
@@ -473,6 +474,7 @@ function renderSeats(){
     html += `</div>`;
   }
   box.innerHTML = html;
+  fitSeatMap();
 
   const taken=[...SEATS].sort((a,b)=>a.seat_id.localeCompare(b.seat_id,undefined,{numeric:true}));
   const tl=$("#takenList");
@@ -483,6 +485,25 @@ function renderSeats(){
     }).join("");
   } else tl.innerHTML = `<h3>Zajęte miejsca</h3><div class="muted">Nikt jeszcze nie zarezerwował.</div>`;
 }
+
+// dopasowanie mapy sali do szerokości ekranu (proporcjonalne skalowanie na telefonie)
+function fitSeatMap(){
+  const wrap=document.querySelector(".seatmap");
+  const rows=$("#seatRows");
+  if(!wrap||!rows) return;
+  rows.style.transform="";
+  rows.style.marginBottom="";
+  const avail=wrap.clientWidth;
+  if(!avail) return;                         // sekcja ukryta – pomiń
+  const content=rows.scrollWidth;
+  if(content>avail){
+    const s=avail/content;
+    rows.style.transformOrigin="top center";
+    rows.style.transform=`scale(${s})`;
+    rows.style.marginBottom=`-${Math.round(rows.offsetHeight*(1-s))}px`;
+  }
+}
+window.addEventListener("resize", fitSeatMap);
 
 function renderAll(){ renderAv(); renderRes(); renderSeats(); }
 
@@ -502,6 +523,7 @@ document.querySelectorAll(".tab").forEach(b=>{
     document.querySelectorAll("section").forEach(x=>x.classList.remove("on"));
     b.classList.add("on");
     $("#"+b.dataset.tab).classList.add("on");
+    if(b.dataset.tab==="seat") requestAnimationFrame(fitSeatMap);   // przeskaluj mapę po pokazaniu
   });
 });
 
