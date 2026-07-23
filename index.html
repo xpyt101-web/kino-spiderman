@@ -109,6 +109,12 @@ section.on{display:block}
   padding:11px 14px;font-size:13px;margin:4px 0 12px;color:#ffd0d6;line-height:1.45}
 .excluded b{color:#fff}
 
+.plaque{background:linear-gradient(135deg,#2a2f3a,#20242e);border:2px dashed var(--gold);
+  color:var(--gold);border-radius:16px;padding:18px 16px;text-align:center;font-weight:800;
+  font-size:16px;margin:6px 0 14px;line-height:1.5}
+.plaque small{display:block;color:var(--muted);font-weight:600;font-size:13px;margin-top:6px}
+.seatmap.dim{opacity:.4;filter:grayscale(.4);pointer-events:none}
+
 /* best times */
 .best{list-style:none;padding:0;margin:8px 0 0}
 .best li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
@@ -227,7 +233,9 @@ section.on{display:block}
   <section id="seat">
     <div class="card">
       <h2>💺 Rezerwacja miejsc</h2>
-      <div class="hint">Kliknij wolne miejsce, żeby je zająć — podpiszemy je Twoim imieniem.
+      <div class="plaque" id="seatsClosed" style="display:none">🔒 Rezerwacja miejsc jeszcze nie teraz
+        <small>Najpierw ustalamy termin — miejsca odblokujemy później. 🎬</small></div>
+      <div class="hint" id="seatHint">Kliknij wolne miejsce, żeby je zająć — podpiszemy je Twoim imieniem.
         Kliknięcie <span style="color:var(--gold);font-weight:700">swojego</span> miejsca je zwalnia.</div>
       <div class="legend">
         <span><i class="dot" style="background:var(--seat)"></i> wolne</span>
@@ -272,6 +280,10 @@ const BLOCKED_DAYS = [1,2,3,4,6,11];
    Całe rzędy podwójne wpisz w DOUBLE_ROWS, a pojedyncze wyjątki w DOUBLE_SEATS ("rząd-numer"). */
 const DOUBLE_ROWS  = [6,7];
 const DOUBLE_SEATS = [];
+
+/* Rezerwacja miejsc: false = zablokowana (pokazuje tabliczkę "jeszcze nie teraz").
+   Zmień na true, gdy chcesz otworzyć wybór miejsc. */
+const SEATS_OPEN = false;
 /* ========================================================================= */
 
 const USING_DB = /^https?:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
@@ -518,6 +530,7 @@ $("#avGrid").addEventListener("click", async e=>{
 // klik w miejsce
 $("#seatRows").addEventListener("click", async e=>{
   const s=e.target.closest(".seat"); if(!s||s.classList.contains("blocked")) return;
+  if(!SEATS_OPEN){ toast("Rezerwacja miejsc jeszcze nie teraz 🔒"); return; }
   if(needName()) return;
   const id=s.dataset.seat;
   const taken=SEATS.find(x=>x.seat_id===id);
@@ -567,6 +580,11 @@ async function refresh(){ await db.loadAll(); renderAll(); }
 
 /* ---------- start ---------- */
 async function start(){
+  if(!SEATS_OPEN){                         // rezerwacja miejsc zablokowana
+    $("#seatsClosed").style.display="block";
+    $("#seatHint").style.display="none";
+    document.querySelector(".seatmap").classList.add("dim");
+  }
   if(USING_DB){
     try{ await initSupabase(); $("#status").textContent="☁️ połączono z bazą"; }
     catch(_){ $("#status").textContent="⚠️ brak połączenia z bazą"; toast("Nie udało się połączyć z Supabase"); }
