@@ -201,7 +201,6 @@ section.on{display:block}
       <h2>📅 Kiedy Ci pasuje?</h2>
       <div class="hint">Wybierz kolor poniżej, a potem klikaj w kratki z dniami i godzinami, żeby je zaznaczyć.
         Cyferka w rogu to liczba osób, którym pasuje ten termin.</div>
-      <div class="excluded" id="excluded"></div>
       <div class="modes" id="modes">
         <button class="mode on" data-mode="yes"><i class="dot yes"></i> mogę</button>
         <button class="mode" data-mode="no"><i class="dot no"></i> nie mogę</button>
@@ -568,11 +567,6 @@ async function refresh(){ await db.loadAll(); renderAll(); }
 
 /* ---------- start ---------- */
 async function start(){
-  const ex=$("#excluded");
-  if(BLOCKED_DAYS.length){
-    const list=[...BLOCKED_DAYS].sort((a,b)=>a-b).map(d=>`${d} ${MONTH}`).join(", ");
-    ex.innerHTML=`🚫 <b>Terminy odgórnie wykluczone</b>: <b>${list}</b>. Te dni są zablokowane i nie liczą się do wyników.`;
-  } else ex.style.display="none";
   if(USING_DB){
     try{ await initSupabase(); $("#status").textContent="☁️ połączono z bazą"; }
     catch(_){ $("#status").textContent="⚠️ brak połączenia z bazą"; toast("Nie udało się połączyć z Supabase"); }
