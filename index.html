@@ -150,6 +150,7 @@ section.on{display:block}
 .seat.dbl{position:relative;border-color:#8a6bd8;box-shadow:inset 0 0 0 1px rgba(138,107,216,.55)}
 .seat.dbl::after{content:"👥";position:absolute;bottom:-1px;right:0;font-size:8px;line-height:1;opacity:.9}
 .wc{width:30px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#8fb0ff;flex:0 0 30px}
+.wclabel{font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap;padding:0 8px;align-self:center}
 
 .taken-list{margin-top:14px;font-size:14px}
 .taken-list h3{font-size:14px;color:var(--muted);margin-bottom:8px}
@@ -476,7 +477,7 @@ function renderSeats(){
   const box=$("#seatRows");
   // rząd z miejscami dla wózków — wyśrodkowany nad blokiem
   let html = `<div class="srow"><span class="rownum"></span>
-      <div class="seats sg"><div class="wc">♿</div><div class="wc">♿</div></div></div>`;
+      <div class="seats sg"><div class="wc">♿</div><div class="wclabel">miejsce Konrada Brody</div><div class="wc">♿</div></div></div>`;
   for(const r of SEAT_ROWS){
     html += `<div class="srow"><span class="rownum">${r.row}</span>`;
     if(r.front){
@@ -592,6 +593,28 @@ $("#seatRows").addEventListener("click", async e=>{
     };
     return;
   }
+  // limit: jedna osoba = jedno miejsce → jeśli ma już inne, zaproponuj przeniesienie
+  const mine = SEATS.find(x=>x.person===ME);
+  if(mine){
+    const [mr,mn]=mine.seat_id.split("-");
+    openModal(`<h3>Masz już zajęte miejsce</h3><p>Twoja rezerwacja: <b>rząd ${mr}, miejsce ${mn}</b>.
+      Jedna osoba może mieć tylko jedno miejsce. Przenieść je na rząd ${id.split("-")[0]}, miejsce ${id.split("-")[1]}?</p>
+      <div class="btns"><button class="btn ghost" onclick="closeModal()">Zostaw</button>
+      <button class="btn primary" id="doMove">Przenieś tutaj</button></div>`);
+    $("#doMove").onclick = async ()=>{
+      closeModal();
+      try{
+        await db.reserveSeat(id);            // najpierw zajmij nowe (jeśli wolne)
+        await db.freeSeat(mine.seat_id);     // potem zwolnij stare
+        SEATS = SEATS.filter(x=>x.seat_id!==mine.seat_id);
+        SEATS.push({seat_id:id,person:ME});
+        renderSeats();
+        toast("Miejsce przeniesione ✅");
+      }catch(err){ toast("Ups — ktoś Cię ubiegł 😅"); await refresh(); }
+    };
+    return;
+  }
+
   // wolne → rezerwuj
   const dbl = isDouble(id) ? `<br><span style="color:#b9a3ee">👥 To miejsce podwójne — dla 2 osób.</span>` : "";
   openModal(`<h3>Zarezerwować miejsce?</h3><p>Rząd ${id.split("-")[0]}, miejsce ${id.split("-")[1]} zostanie podpisane:
