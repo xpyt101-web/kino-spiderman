@@ -247,7 +247,6 @@ section.on{display:block}
         <span><i class="dot" style="background:var(--seat)"></i> wolne</span>
         <span><i class="dot yes"></i> zajęte</span>
         <span><i class="dot" style="background:var(--gold)"></i> Twoje</span>
-        <span><i class="dot" style="background:#2a2f3a"></i> niedostępne</span>
         <span><i class="dot" style="background:var(--seat);border-color:#8a6bd8;box-shadow:inset 0 0 0 1px #8a6bd8"></i> 👥 podwójne (2 os.)</span>
       </div>
       <div class="screen">EKRAN</div>
@@ -316,7 +315,7 @@ const MONTH = "sie";
 // front = przednie rzędy: pojedyncze fotele.
 // tylne rzędy (6-7): pary podwójnych foteli złączone w grupy, z przerwami między grupami.
 const SEAT_ROWS = [
-  { row:1, front:true, blockedLeft:true, seats:[6,5,4,3,2,1] },
+  { row:1, front:true, seats:[7,6,5,4,3,2,1] },
   { row:2, front:true, seats:[7,6,5,4,3,2,1] },
   { row:3, front:true, seats:[7,6,5,4,3,2,1] },
   { row:4, front:true, seats:[7,6,5,4,3,2,1] },
