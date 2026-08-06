@@ -117,6 +117,10 @@ section.on{display:block}
   font-size:16px;margin:6px 0 14px;line-height:1.5}
 .plaque small{display:block;color:var(--muted);font-weight:600;font-size:13px;margin-top:6px}
 .seatmap.dim{opacity:.4;filter:grayscale(.4);pointer-events:none}
+section.locked .card{display:none}      /* zablokowana zakładka: pokazuje tylko kłódkę */
+.seat.dbl{position:relative}
+.seat.dbl::after{content:"👥";position:absolute;bottom:-3px;right:-2px;font-size:8px;line-height:1;
+  filter:drop-shadow(0 0 1px #000)}
 
 /* best times */
 .best{list-style:none;padding:0;margin:8px 0 0}
@@ -204,6 +208,8 @@ section.on{display:block}
 
   <!-- ===== TERMINY ===== -->
   <section id="av" class="on">
+    <div class="plaque" id="avLocked" style="display:none">🔒 Czynność zablokowana
+      <small>Termin jest już ustalony: 7 sierpnia, 17:00. Głosowanie zamknięte.</small></div>
     <div class="card">
       <h2>📅 Kiedy Ci pasuje?</h2>
       <div class="hint">Wybierz kolor poniżej, a potem klikaj w kratki z dniami i godzinami, żeby je zaznaczyć.
@@ -222,6 +228,8 @@ section.on{display:block}
 
   <!-- ===== WYNIKI ===== -->
   <section id="res">
+    <div class="plaque" id="resLocked" style="display:none">🔒 Czynność zablokowana
+      <small>Głosowanie zakończone — termin ustalony na 7 sierpnia, 17:00.</small></div>
     <div class="card">
       <h2>🏆 Najlepsze terminy</h2>
       <div class="hint">Ranking wg liczby osób, którym dany termin pasuje.</div>
@@ -247,6 +255,7 @@ section.on{display:block}
         <span><i class="dot yes"></i> zajęte</span>
         <span><i class="dot" style="background:var(--green);box-shadow:0 0 0 2px var(--gold)"></i> Twoje</span>
         <span><i class="dot" style="background:#e0b53a;border-color:#b08a1c"></i> zajęte przez innych</span>
+        <span>👥 = miejsce podwójne (2 os.)</span>
       </div>
       <div class="screen">EKRAN</div>
       <div class="seatmap"><div class="seatrows" id="seatRows"></div></div>
@@ -280,14 +289,17 @@ const SUPABASE_ANON_KEY = "sb_publishable_y0sTobWyJo5zk3QVkqdPmg_WA0G9CSO";  // 
    Edytuj listę wg potrzeb (numery dni sierpnia). */
 const BLOCKED_DAYS = [1,2,3,4,6,11];
 
-/* Miejsca PODWÓJNE (dla dwóch osób). Oznaczane ikoną 👥 i fioletowym akcentem.
+/* Miejsca PODWÓJNE (dla dwóch osób) — oznaczane ikoną 👥. W nowej sali: rzędy 10, 11, 12.
    Całe rzędy podwójne wpisz w DOUBLE_ROWS, a pojedyncze wyjątki w DOUBLE_SEATS ("rząd-numer"). */
-const DOUBLE_ROWS  = [6,7];
+const DOUBLE_ROWS  = [10,11,12];
 const DOUBLE_SEATS = [];
 
 /* Rezerwacja miejsc: false = zablokowana (pokazuje tabliczkę "jeszcze nie teraz").
    Zmień na true, gdy chcesz otworzyć wybór miejsc. */
 const SEATS_OPEN = true;
+/* Głosowanie na termin: false = zablokowane (kłódka "czynność zablokowana"),
+   bo termin jest już ustalony. */
+const VOTING_OPEN = false;
 /* ========================================================================= */
 
 const USING_DB = /^https?:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
@@ -467,16 +479,19 @@ function renderRes(){
 }
 
 /* ---------- render: miejsca ---------- */
+function isDouble(row,num){ return DOUBLE_ROWS.includes(row) || DOUBLE_SEATS.includes(`${row}-${num}`); }
 function seatHTML(row,num,col){
   const id=`${row}-${num}`;
+  const dbl = isDouble(row,num) ? " dbl" : "";
   if(!inGroup(row,num)){
     // poza naszym blokiem → zajęte przez inną grupę (żółte, nieklikalne)
-    return `<div class="seat other" style="grid-column:${col}" title="zajęte przez inną grupę">${num}</div>`;
+    return `<div class="seat other${dbl}" style="grid-column:${col}" title="zajęte przez inną grupę">${num}</div>`;
   }
   const taken=SEATS.find(x=>x.seat_id===id);
-  let cls="seat";
+  let cls="seat"+dbl;
   if(taken) cls+= taken.person===ME?" mine":" taken";
-  return `<div class="${cls}" data-seat="${id}" style="grid-column:${col}" title="${taken?taken.person:'wolne'}">${num}</div>`;
+  const t=(taken?taken.person:"wolne")+(dbl?" · miejsce podwójne (2 os.)":"");
+  return `<div class="${cls}" data-seat="${id}" style="grid-column:${col}" title="${t}">${num}</div>`;
 }
 
 function renderSeats(){
@@ -558,6 +573,7 @@ $("#modes").addEventListener("click", e=>{
 
 // klik w kratkę terminu — maluje wybranym kolorem
 $("#avGrid").addEventListener("click", async e=>{
+  if(!VOTING_OPEN){ toast("Głosowanie zamknięte — termin ustalony 🔒"); return; }
   const cell=e.target.closest(".cell"); if(!cell) return;
   if(cell.classList.contains("blocked")){ toast("Ten dzień jest odgórnie wykluczony 🚫"); return; }
   if(needName()) return;
@@ -650,6 +666,12 @@ async function start(){
     $("#seatsClosed").style.display="block";
     $("#seatHint").style.display="none";
     document.querySelector(".seatmap").classList.add("dim");
+  }
+  if(!VOTING_OPEN){                        // głosowanie na termin zablokowane (termin ustalony)
+    document.getElementById("av").classList.add("locked");
+    document.getElementById("res").classList.add("locked");
+    $("#avLocked").style.display="block";
+    $("#resLocked").style.display="block";
   }
   if(USING_DB){
     try{ await initSupabase(); $("#status").textContent="☁️ połączono z bazą"; }
