@@ -119,8 +119,10 @@ section.on{display:block}
 .seatmap.dim{opacity:.4;filter:grayscale(.4);pointer-events:none}
 section.locked .card{display:none}      /* zablokowana zakładka: pokazuje tylko kłódkę */
 .seat.dbl{position:relative}
-.seat.dbl::after{content:"👥";position:absolute;bottom:-3px;right:-2px;font-size:8px;line-height:1;
-  filter:drop-shadow(0 0 1px #000)}
+.seat.dl{border-radius:7px 2px 2px 4px}                       /* lewy fotel pary — zaokrąglony z lewej */
+.seat.dr{margin-left:-3px;border-radius:2px 7px 4px 2px}      /* prawy fotel pary — sklejony z lewym (brak przerwy) */
+.seat.dl::after{content:"👥";position:absolute;bottom:-3px;left:0;font-size:8px;line-height:1;
+  filter:drop-shadow(0 0 1px #000);z-index:1}
 
 /* best times */
 .best{list-style:none;padding:0;margin:8px 0 0}
@@ -482,7 +484,8 @@ function renderRes(){
 function isDouble(row,num){ return DOUBLE_ROWS.includes(row) || DOUBLE_SEATS.includes(`${row}-${num}`); }
 function seatHTML(row,num,col){
   const id=`${row}-${num}`;
-  const dbl = isDouble(row,num) ? " dbl" : "";
+  // pary podwójne: lewy fotel pary = numer nieparzysty (dl), prawy = parzysty (dr, sklejony z lewym)
+  const dbl = isDouble(row,num) ? (num%2===1 ? " dbl dl" : " dbl dr") : "";
   if(!inGroup(row,num)){
     // poza naszym blokiem → zajęte przez inną grupę (żółte, nieklikalne)
     return `<div class="seat other${dbl}" style="grid-column:${col}" title="zajęte przez inną grupę">${num}</div>`;
