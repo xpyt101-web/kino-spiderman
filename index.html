@@ -132,25 +132,21 @@ section.on{display:block}
   display:flex;align-items:flex-start;justify-content:center;font-size:11px;color:#cfe0ff;
   letter-spacing:3px;font-weight:700;padding-top:3px}
 .seatmap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 0}
-.seatrows{display:inline-flex;flex-direction:column;gap:6px;min-width:100%;padding:0 4px}
-.srow{display:flex;align-items:center}
-.rownum{font-size:11px;color:var(--muted);width:22px;text-align:center;flex:0 0 22px;font-weight:700}
-.seats{flex:1 1 auto;display:flex;justify-content:center}
-.seats.sg{gap:5px}                    /* przednie rzędy: pojedyncze fotele */
-.seats.gg{gap:13px}                   /* tylne rzędy: przerwy między parami */
-.grp{display:flex;gap:3px}            /* para podwójna – fotele złączone */
-.seat{width:30px;height:30px;border-radius:8px 8px 4px 4px;background:var(--seat);
-  border:1px solid #2f4d8f;color:#cfe0ff;font-size:11px;font-weight:800;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:.12s;flex:0 0 auto}
+.seatrows{display:inline-flex;flex-direction:column;gap:5px;min-width:100%;padding:0 4px}
+.srow{display:flex;align-items:center;gap:6px}
+.rownum{font-size:11px;color:var(--muted);width:20px;text-align:center;flex:0 0 20px;font-weight:700}
+.hgrid{display:grid;grid-template-columns:repeat(23,26px);gap:3px;flex:0 0 auto}
+.seat{width:26px;height:26px;border-radius:7px 7px 4px 4px;background:var(--seat);
+  border:1px solid #2f4d8f;color:#cfe0ff;font-size:10px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.12s}
 .seat:hover{background:var(--seat-h)}
 .seat:active{transform:scale(.9)}
-.seat.taken{background:var(--green);border-color:var(--green-d);color:#fff;cursor:pointer}
-.seat.mine{background:var(--gold);border-color:#c98f14;color:#3a2600}
-.seat.blocked{background:#2a2f3a;border-color:#3a4152;color:#5a6478;cursor:not-allowed}
-.seat.dbl{position:relative;border-color:#8a6bd8;box-shadow:inset 0 0 0 1px rgba(138,107,216,.55)}
-.seat.dbl::after{content:"👥";position:absolute;bottom:-1px;right:0;font-size:8px;line-height:1;opacity:.9}
-.wc{width:30px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#8fb0ff;flex:0 0 30px}
-.wclabel{font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap;padding:0 8px;align-self:center}
+.seat.taken{background:var(--green);border-color:var(--green-d);color:#fff}
+.seat.mine{background:var(--green);border-color:var(--gold);color:#fff;box-shadow:0 0 0 2px var(--gold)}
+.seat.other{background:#e0b53a;border-color:#b08a1c;color:#3a2a02;cursor:not-allowed}
+.seat.other:hover{background:#e0b53a}
+.wc{display:flex;align-items:center;justify-content:center;font-size:15px;color:#8fb0ff}
+.wclabel{font-size:11px;font-weight:800;color:var(--gold);white-space:nowrap;text-align:center;align-self:center}
 
 .taken-list{margin-top:14px;font-size:14px}
 .taken-list h3{font-size:14px;color:var(--muted);margin-bottom:8px}
@@ -185,10 +181,11 @@ section.on{display:block}
 <div class="hero">
   <div class="web">🕷️</div>
   <h1>Wyjazd na Spider-Mana</h1>
+  <div class="sub">Termin ustalony — teraz wybierz miejsce w kinie! 🎬</div>
   <div class="badges">
-    <div class="badge">🎟️ Bilet: <b>26&nbsp;zł</b></div>
-    <div class="badge">📅 1–20 sierpnia</div>
-    <div class="badge">🕓 16:00–21:00</div>
+    <div class="badge">🎟️ Bilet: <b>17&nbsp;zł</b></div>
+    <div class="badge">📅 7 sierpnia</div>
+    <div class="badge">🕓 17:00</div>
   </div>
 </div>
 
@@ -242,13 +239,14 @@ section.on{display:block}
       <h2>💺 Rezerwacja miejsc</h2>
       <div class="plaque" id="seatsClosed" style="display:none">🔒 Rezerwacja miejsc jeszcze nie teraz
         <small>beka z ciebie pozdrawiam cieplutko 😘</small></div>
-      <div class="hint" id="seatHint">Kliknij wolne miejsce, żeby je zająć — podpiszemy je Twoim imieniem.
-        Kliknięcie <span style="color:var(--gold);font-weight:700">swojego</span> miejsca je zwalnia.</div>
+      <div class="hint" id="seatHint">Rezerwujemy tylko w <b>naszym bloku</b> (miejsca niebieskie). Kliknij wolne miejsce, żeby je zająć —
+        podpiszemy je Twoim imieniem. Kliknięcie <span style="color:var(--gold);font-weight:700">swojego</span> miejsca je zwalnia.
+        Żółte to miejsca <b>innej grupy</b> — nie da się ich wybrać.</div>
       <div class="legend">
-        <span><i class="dot" style="background:var(--seat)"></i> wolne</span>
+        <span><i class="dot" style="background:var(--seat)"></i> wolne (nasz blok)</span>
         <span><i class="dot yes"></i> zajęte</span>
-        <span><i class="dot" style="background:var(--gold)"></i> Twoje</span>
-        <span><i class="dot" style="background:var(--seat);border-color:#8a6bd8;box-shadow:inset 0 0 0 1px #8a6bd8"></i> 👥 podwójne (2 os.)</span>
+        <span><i class="dot" style="background:var(--green);box-shadow:0 0 0 2px var(--gold)"></i> Twoje</span>
+        <span><i class="dot" style="background:#e0b53a;border-color:#b08a1c"></i> zajęte przez innych</span>
       </div>
       <div class="screen">EKRAN</div>
       <div class="seatmap"><div class="seatrows" id="seatRows"></div></div>
@@ -312,18 +310,28 @@ const DAYS = Array.from({length:20}, (_,i)=>i+1);      // 1..20 sierpnia
 const HOURS = [16,17,18,19,20,21];
 const MONTH = "sie";
 
-// układ sali wg zdjęcia (numer 1 = z prawej), całość wyśrodkowana (piramida).
-// front = przednie rzędy: pojedyncze fotele.
-// tylne rzędy (6-7): pary podwójnych foteli złączone w grupy, z przerwami między grupami.
-const SEAT_ROWS = [
-  { row:1, front:true, seats:[7,6,5,4,3,2,1] },
-  { row:2, front:true, seats:[7,6,5,4,3,2,1] },
-  { row:3, front:true, seats:[7,6,5,4,3,2,1] },
-  { row:4, front:true, seats:[7,6,5,4,3,2,1] },
-  { row:5, front:true, seats:[7,6,5,4,3,2,1] },
-  { row:6, front:false, groups:[[11,10,9],[8,7],[6,5],[4,3],[2,1]] },
-  { row:7, front:false, groups:[[12,11],[10,9],[8,7],[6,5],[4,3],[2,1]] },
+// NOWA SALA (7.08.2026). Numeracja miejsc od LEWEJ (1) do prawej.
+// Każdy rząd to lista segmentów {from,to,col}: miejsce n rysuje się w kolumnie col+(n-from).
+// Siatka ma NCOLS kolumn wspólnych dla wszystkich rzędów (dzięki temu układ się zgrywa).
+const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const NCOLS=23;
+const HALL = [
+  { row:1,  segs:[{from:1,to:12,col:9}] },
+  { row:2,  segs:[{from:1,to:15,col:6}] },
+  { row:3,  segs:[{from:1,to:15,col:6}] },
+  { row:4,  segs:[{from:1,to:15,col:6}] },
+  { row:5,  segs:[{from:1,to:15,col:6}] },
+  { row:6,  segs:[{from:1,to:15,col:6}] },
+  { row:7,  segs:[{from:1,to:15,col:6}] },
+  { row:8,  segs:[{from:1,to:2,col:1},{from:3,to:17,col:6}] },
+  { row:9,  segs:[{from:1,to:2,col:1},{from:3,to:17,col:6}] },
+  { row:10, segs:[{from:1,to:2,col:1},{from:3,to:18,col:5}] },
+  { row:11, segs:[{from:1,to:2,col:1},{from:3,to:18,col:5}] },
+  { row:12, segs:[{from:1,to:23,col:1}] },
 ];
+// NASZ BLOK — miejsca dostępne do rezerwacji. Reszta = zajęte przez innych (żółte).
+const GROUP = { 9:range(13,15), 10:range(3,18), 11:range(3,12) };
+function inGroup(row,num){ return GROUP[row] ? GROUP[row].includes(num) : false; }
 
 /* ---------- stan ---------- */
 let ME = localStorage.getItem("kino_name") || "";
@@ -459,50 +467,45 @@ function renderRes(){
 }
 
 /* ---------- render: miejsca ---------- */
-function isDouble(id){
-  const row=parseInt(id,10);
-  return DOUBLE_ROWS.includes(row) || DOUBLE_SEATS.includes(id);
-}
-function seatHTML(row,num){
+function seatHTML(row,num,col){
   const id=`${row}-${num}`;
+  if(!inGroup(row,num)){
+    // poza naszym blokiem → zajęte przez inną grupę (żółte, nieklikalne)
+    return `<div class="seat other" style="grid-column:${col}" title="zajęte przez inną grupę">${num}</div>`;
+  }
   const taken=SEATS.find(x=>x.seat_id===id);
   let cls="seat";
-  if(isDouble(id)) cls+=" dbl";
   if(taken) cls+= taken.person===ME?" mine":" taken";
-  const t = (taken?taken.person:"wolne") + (isDouble(id)?" · miejsce podwójne (2 os.)":"");
-  return `<div class="${cls}" data-seat="${id}" title="${t}">${num}</div>`;
+  return `<div class="${cls}" data-seat="${id}" style="grid-column:${col}" title="${taken?taken.person:'wolne'}">${num}</div>`;
 }
 
 function renderSeats(){
   const box=$("#seatRows");
-  // rząd z miejscami dla wózków — wyśrodkowany nad blokiem
+  // rząd z miejscami dla wózków + napis Konrada Brołdy (wyśrodkowany nad salą)
   let html = `<div class="srow"><span class="rownum"></span>
-      <div class="seats sg"><div class="wc">♿</div><div class="wclabel">miejsce Konrada Brołdy</div><div class="wc">♿</div></div></div>`;
-  for(const r of SEAT_ROWS){
-    html += `<div class="srow"><span class="rownum">${r.row}</span>`;
-    if(r.front){
-      html += `<div class="seats sg">`;
-      if(r.blockedLeft) html += `<div class="seat blocked">✕</div>`;
-      html += r.seats.map(n=>seatHTML(r.row,n)).join("");
-      html += `</div>`;
-    } else {
-      html += `<div class="seats gg">`;
-      html += r.groups.map(g=>`<div class="grp">${g.map(n=>seatHTML(r.row,n)).join("")}</div>`).join("");
-      html += `</div>`;
+      <div class="hgrid"><div class="wc" style="grid-column:9">♿</div>
+      <div class="wclabel" style="grid-column:10/19">miejsce Konrada Brołdy</div>
+      <div class="wc" style="grid-column:19">♿</div></div></div>`;
+  for(const r of HALL){
+    html += `<div class="srow"><span class="rownum">${r.row}</span><div class="hgrid">`;
+    for(const seg of r.segs){
+      for(let n=seg.from;n<=seg.to;n++) html += seatHTML(r.row, n, seg.col + (n-seg.from));
     }
-    html += `</div>`;
+    html += `</div></div>`;
   }
   box.innerHTML = html;
   fitSeatMap();
 
-  const taken=[...SEATS].sort((a,b)=>a.seat_id.localeCompare(b.seat_id,undefined,{numeric:true}));
+  // lista zajętych — tylko nasz blok
+  const taken=[...SEATS].filter(s=>{const p=s.seat_id.split("-");return inGroup(+p[0],+p[1]);})
+    .sort((a,b)=>a.seat_id.localeCompare(b.seat_id,undefined,{numeric:true}));
   const tl=$("#takenList");
   if(taken.length){
-    tl.innerHTML = `<h3>Zajęte miejsca (${taken.length})</h3>` + taken.map(s=>{
+    tl.innerHTML = `<h3>Zajęte miejsca w naszym bloku (${taken.length})</h3>` + taken.map(s=>{
       const [row,num]=s.seat_id.split("-");
       return `<div class="row"><span>Rząd ${row}, miejsce ${num}</span><b>${s.person}</b></div>`;
     }).join("");
-  } else tl.innerHTML = `<h3>Zajęte miejsca</h3><div class="muted">Nikt jeszcze nie zarezerwował.</div>`;
+  } else tl.innerHTML = `<h3>Zajęte miejsca w naszym bloku</h3><div class="muted">Nikt jeszcze nie zarezerwował.</div>`;
 }
 
 // dopasowanie mapy sali do szerokości ekranu (proporcjonalne skalowanie na telefonie)
@@ -570,7 +573,8 @@ $("#avGrid").addEventListener("click", async e=>{
 
 // klik w miejsce
 $("#seatRows").addEventListener("click", async e=>{
-  const s=e.target.closest(".seat"); if(!s||s.classList.contains("blocked")) return;
+  const s=e.target.closest(".seat"); if(!s) return;
+  if(s.classList.contains("other")){ toast("To miejsce należy do innej grupy 🟡"); return; }
   if(!SEATS_OPEN){ toast("Rezerwacja miejsc jeszcze nie teraz 🔒"); return; }
   if(needName()) return;
   const id=s.dataset.seat;
@@ -616,9 +620,8 @@ $("#seatRows").addEventListener("click", async e=>{
   }
 
   // wolne → rezerwuj
-  const dbl = isDouble(id) ? `<br><span style="color:#b9a3ee">👥 To miejsce podwójne — dla 2 osób.</span>` : "";
   openModal(`<h3>Zarezerwować miejsce?</h3><p>Rząd ${id.split("-")[0]}, miejsce ${id.split("-")[1]} zostanie podpisane:
-    <b style="color:var(--gold)">${ME}</b>${dbl}</p>
+    <b style="color:var(--gold)">${ME}</b></p>
     <div class="btns"><button class="btn ghost" onclick="closeModal()">Anuluj</button>
     <button class="btn primary" id="doRes">Rezerwuję</button></div>`);
   $("#doRes").onclick = async ()=>{
